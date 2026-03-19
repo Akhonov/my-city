@@ -1,0 +1,261 @@
+/* Обнуление базовых стилей браузера */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-dark: #020617;
+  --bg-panel: rgba(15, 23, 42, 0.9);
+  --border: rgba(148, 163, 184, 0.1);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent: #38bdf8;
+  --accent-glow: rgba(56, 189, 248, 0.15);
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  overflow-x: hidden;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(circle at 50% 0%, #1e293b 0%, transparent 50%),
+    linear-gradient(180deg, #020617 0%, #0f172a 100%);
+}
+
+/* Шапка */
+.topbar {
+  padding: 20px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar h1 {
+  font-size: 1.5rem;
+  letter-spacing: 2px;
+  color: #fff;
+}
+
+.topbar__status {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.status-pill {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+}
+
+.status-pill--connected { color: #4ade80; }
+.status-pill--local { color: #fbbf24; }
+
+.score-card {
+  font-size: 1rem;
+  color: var(--accent);
+}
+
+/* Основной макет */
+.dashboard {
+  display: grid;
+  grid-template-columns: 350px 1fr 350px; /* Три колонки */
+  gap: 20px;
+  padding: 20px;
+  flex: 1; /* Растягиваем на всю высоту */
+  max-height: calc(100vh - 80px);
+}
+
+/* Колонки и карточки */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  overflow-y: auto; /* Прокрутка только внутри панелей */
+  padding-right: 5px;
+}
+
+.panel-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.eyebrow {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+/* Сетка метрик */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.metric-card {
+  padding: 12px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.metric-card__header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+
+.metric-card__bar {
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+}
+
+.metric-card__bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: inherit;
+}
+
+.metric-card--good { border-left: 3px solid #22c55e; }
+.metric-card--bad { border-left: 3px solid #ef4444; }
+
+/* Карта */
+.scene-column {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.scene-frame {
+  flex: 1;
+  position: relative;
+  background: #000;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.scene-overlay {
+  position: absolute;
+  padding: 15px;
+  background: rgba(2, 6, 23, 0.7);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  z-index: 10;
+}
+
+.scene-overlay--top { top: 15px; left: 15px; right: 15px; }
+
+/* Тулбар (кнопки выбора) */
+.toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tool-chip {
+  padding: 10px 16px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  color: white;
+  border-radius: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.tool-chip--active {
+  background: var(--accent-glow);
+  border-color: var(--accent);
+}
+
+.tool-chip__swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* Кнопки действий */
+.primary-action {
+  width: 100%;
+  padding: 14px;
+  background: var(--accent);
+  border: none;
+  border-radius: 12px;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.secondary-action {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: white;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+/* Карта: маркеры */
+.map-marker {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+  box-shadow: 0 0 15px rgba(0,0,0,0.5);
+  cursor: pointer;
+}
+
+.map-marker-label {
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  margin-top: 5px;
+  white-space: nowrap;
+}
+
+/* Списки */
+.district-item, .recommendation-item {
+  padding: 10px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.warning-text { color: #fca5a5; font-size: 0.85rem; margin-bottom: 5px; }
+.positive-text { color: #86efac; font-size: 0.85rem; margin-bottom: 5px; }

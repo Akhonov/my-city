@@ -1,0 +1,20 @@
+[
+  {
+    "name": "KBTU Building",
+    "coords": [[-2, -2], [2, -2], [2, 2], [-2, 2]],
+    "height": 5,
+    "color": "#fcd34d"
+  },
+  {
+    "name": "Panfilov Street Walkway",
+    "coords": [[-0.5, -10], [0.5, -10], [0.5, 10], [-0.5, 10]],
+    "height": 0.1,
+    "color": "#94a3b8"
+  },
+  {
+    "name": "Hotel Kazakhstan",
+    "coords": [[8, 5], [11, 5], [11, 7], [8, 7]],
+    "height": 12,
+    "color": "#60a5fa"
+  }
+]
