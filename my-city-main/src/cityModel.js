@@ -9,6 +9,21 @@ export const DEVELOPMENT_TYPES = {
   energy: { id: 'energy', label: 'Энергоцентр', shortLabel: 'Энергия', color: '#f97316' },
 };
 
+export const STORY_FACTS = {
+  ru: [
+    "Алматы растет между плотным центром, предгорьями и промышленным поясом.",
+    "Ключевые ограничения: транспортная перегрузка, инверсия воздуха."
+  ],
+  kk: [
+    "Алматы тығыз орталық, тау бөктері мен өнеркәсіптік белдеу арасында өсуде.",
+    "Негізгі шектеулер: көлік кептелісі, ауа инверсиясы."
+  ],
+  en: [
+    "Almaty is growing between a dense center, foothills and an industrial belt.",
+    "Key constraints: traffic congestion, air inversion."
+  ]
+};
+
 export const DISTRICTS = [
   { id: 'historic-core', name: 'Исторический центр', center: [-1, 0], size: [10, 14], color: '#1e293b', summary: 'Историческая ткань, туризм и культурные объекты.' },
   { id: 'esentai', name: 'Есентай и деловой пояс', center: [11, -2], size: [10, 10], color: '#0f766e', summary: 'Финансы, офисы и mixed-use проекты.' },
@@ -118,8 +133,4 @@ export const BASELINE_METRICS = {
   resilience: 58,
 };
 
-export const STORY_FACTS = [
-  'Алматы растет между плотным центром, южными предгорьями и северным промышленным поясом.',
-  'Ключевые ограничения: транспортная перегрузка, инверсия воздуха, сейсмичность и неравномерный доступ к соцобъектам.',
-  'Digital twin показывает карту, существующую застройку и explainable impact analysis новых проектов.',
-];
+
