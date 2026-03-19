@@ -259,3 +259,71 @@ body {
 
 .warning-text { color: #fca5a5; font-size: 0.85rem; margin-bottom: 5px; }
 .positive-text { color: #86efac; font-size: 0.85rem; margin-bottom: 5px; }
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.user-badge {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+
+.chat-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 320px;
+}
+
+.messages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.message-item {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  line-height: 1.4;
+}
+
+.message-item--own {
+  border-color: rgba(56, 189, 248, 0.5);
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.chat-compose {
+  display: flex;
+  gap: 8px;
+}
+
+.chat-compose input {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.chat-compose button {
+  border: none;
+  border-radius: 12px;
+  padding: 0 16px;
+  background: var(--accent);
+  color: #00111a;
+  font-weight: 700;
+  cursor: pointer;
+}

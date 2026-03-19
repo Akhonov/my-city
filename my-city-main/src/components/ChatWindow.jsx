@@ -1,34 +1,82 @@
+import React, { useEffect, useState } from 'react';
+
+import { API_BASE_URL } from '../api';
+
 export default function ChatWindow({ currentUser }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [isSending, setIsSending] = useState(false);
 
-  const fetchMessages = () => {
-    fetch('http://localhost:8000/messages').then(r => r.json()).then(setMessages);
+  const fetchMessages = async () => {
+    const response = await fetch(`${API_BASE_URL}/messages`);
+    if (!response.ok) {
+      throw new Error('Failed to load messages');
+    }
+
+    const data = await response.json();
+    setMessages(data);
   };
 
   useEffect(() => {
-    const timer = setInterval(fetchMessages, 3000); // Обновляем чат каждые 3 сек
+    fetchMessages().catch(() => {});
+    const timer = setInterval(() => {
+      fetchMessages().catch(() => {});
+    }, 3000);
+
     return () => clearInterval(timer);
   }, []);
 
-  const send = () => {
-    fetch('http://localhost:8000/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sender: currentUser, text: input })
-    });
-    setInput('');
+  const send = async () => {
+    const text = input.trim();
+    if (!text || !currentUser || isSending) {
+      return;
+    }
+
+    setIsSending(true);
+
+    try {
+      await fetch(`${API_BASE_URL}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sender: currentUser, text }),
+      });
+      setInput('');
+      await fetchMessages();
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
-    <div className="chat-panel">
+    <div className="chat-panel panel-card">
+      <div className="section-heading">
+        <span className="eyebrow">Community Chat</span>
+        <strong>{currentUser ? `Online: ${currentUser}` : 'Guest'}</strong>
+      </div>
+
       <div className="messages-list">
         {messages.map((m, i) => (
-          <div key={i}><b>{m.sender}:</b> {m.text}</div>
+          <div key={m.id ?? i} className={`message-item ${m.sender === currentUser ? 'message-item--own' : ''}`}>
+            <b>{m.sender}:</b> {m.text}
+          </div>
         ))}
       </div>
-      <input value={input} onChange={e => setInput(e.target.value)} />
-      <button onClick={send}>📨</button>
+
+      <div className="chat-compose">
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Напишите сообщение..."
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              send();
+            }
+          }}
+        />
+        <button onClick={send} disabled={isSending || !input.trim()}>
+          Send
+        </button>
+      </div>
     </div>
   );
 }

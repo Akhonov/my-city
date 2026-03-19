@@ -17,6 +17,9 @@ import {
 import Map, { Marker, NavigationControl } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './App.css';
+import { API_BASE_URL } from './api';
+import AuthModal from './components/AuthModal';
+import ChatWindow from './components/ChatWindow';
 
 // Импортируем твои данные и логику
 import {
@@ -209,26 +212,47 @@ function RealCityMap({ placements, selectedSiteId, activeTypeId, onSiteSelect, o
 export default function App() {
   const [selectedTypeId, setSelectedTypeId] = useState('transit');
   const [selectedSiteId, setSelectedSiteId] = useState(DEVELOPMENT_SITES[0].id);
-  const [placements, setPlacements] = useState(loadPlacements);
+  const [placements, setPlacements] = useState(() => loadPlacements());
   const [remoteSimulation, setRemoteSimulation] = useState(null);
   const [backendStatus, setBackendStatus] = useState('local');
+  const [showAuth, setShowAuth] = useState(true);
+  const [user, setUser] = useState(null);
 
+  // Локальный расчет (заглушка)
   const localSimulation = useMemo(() => simulateCity(placements), [placements]);
-  const simulation = useMemo(
-    () => normalizeSimulationResponse(remoteSimulation, localSimulation),
-    [remoteSimulation, localSimulation]
-  );
+
+  // Объединяем данные бэкенда и локальные, добавляем защиту от null
+  const simulation = useMemo(() => {
+    const base = remoteSimulation || localSimulation;
+    return {
+      score: base?.score || 0,
+      summary: base?.summary || "Загрузка данных...",
+      metrics: base?.metrics || {},
+      deltas: base?.deltas || {},
+      warnings: base?.warnings || [],
+      opportunities: base?.opportunities || [],
+      rankedSites: base?.rankedSites || []
+    };
+  }, [remoteSimulation, localSimulation]);
+
   const selectedSite = DEVELOPMENT_SITES.find((s) => s.id === selectedSiteId) || DEVELOPMENT_SITES[0];
 
+  const handleLogin = (username) => {
+    setUser(username);
+    setShowAuth(false);
+  };
+
+  // Сохранение в LocalStorage
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(placements));
   }, [placements]);
 
+  // Синхронизация с бэкендом
   useEffect(() => {
     const controller = new AbortController();
     async function syncScenario() {
       try {
-        const response = await fetch('/api/simulate', {
+        const response = await fetch(`${API_BASE_URL}/api/simulate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -236,15 +260,17 @@ export default function App() {
           }),
           signal: controller.signal,
         });
-        if (!response.ok) {
-          throw new Error(`Simulation request failed with ${response.status}`);
-        }
+
+        if (!response.ok) throw new Error();
+
         const data = await response.json();
-        setRemoteSimulation(normalizeSimulationResponse(data, localSimulation));
+        setRemoteSimulation(data.simulation || data);
         setBackendStatus('connected');
-      } catch {
-        setRemoteSimulation(null);
-        setBackendStatus('local');
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          setRemoteSimulation(null);
+          setBackendStatus('local');
+        }
       }
     }
     syncScenario();
@@ -267,12 +293,16 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      {/* МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ */}
+      {showAuth && <AuthModal onLogin={handleLogin} />}
+
       <header className="topbar">
         <div>
           <p className="eyebrow">Digital Twin of Almaty / Hackathon 2026</p>
           <h1>ALMATY TWIN CITY</h1>
         </div>
         <div className="topbar__status">
+          {user && <span className="user-badge" style={{marginRight: '15px'}}>👤 {user}</span>}
           <span className={`status-pill status-pill--${backendStatus}`}>
             {backendStatus === 'connected' ? 'Backend Online' : 'Local Simulation'}
           </span>
@@ -281,7 +311,6 @@ export default function App() {
       </header>
 
       <main className="dashboard">
-        {/* Левая панель */}
         <aside className="panel">
           <section className="panel-card hero-card">
             <span className="eyebrow">Summary</span>
@@ -296,8 +325,8 @@ export default function App() {
               <MetricCard
                 key={key}
                 metricKey={key}
-                value={simulation.metrics[key]}
-                delta={simulation.deltas[key]}
+                value={simulation.metrics[key] || 0}
+                delta={simulation.deltas[key] || 0}
               />
             ))}
           </section>
@@ -315,7 +344,6 @@ export default function App() {
           </section>
         </aside>
 
-        {/* Карта */}
         <section className="scene-column">
           <div className="scene-frame">
             <RealCityMap
@@ -325,7 +353,7 @@ export default function App() {
             />
             <div className="scene-overlay scene-overlay--top">
               <strong>3D GIS Simulation</strong>
-              <span>Нажмите на маркер, затем кнопку «Разместить» справа</span>
+              <span>Выберите участок на карте</span>
             </div>
           </div>
 
@@ -343,8 +371,10 @@ export default function App() {
             <button
               className="tool-chip tool-chip--ghost"
               onClick={() => {
-                setPlacements({});
-                setRemoteSimulation(null);
+                if(window.confirm("Очистить все застройки?")) {
+                  setPlacements({});
+                  setRemoteSimulation(null);
+                }
               }}
             >
               Reset
@@ -352,7 +382,6 @@ export default function App() {
           </section>
         </section>
 
-        {/* Правая панель */}
         <aside className="panel">
           <section className="panel-card">
             <div className="section-heading">
@@ -360,10 +389,6 @@ export default function App() {
               <strong>{selectedSite.name}</strong>
             </div>
             <p className="site-description">{selectedSite.recommendation}</p>
-            <div className="site-stats">
-               <span>Transit: {Math.round(selectedSite.context.transitAccess * 100)}%</span>
-               <span>Green: {Math.round(selectedSite.context.greenDeficit * 100)}%</span>
-            </div>
             <div className="action-stack">
               <button className="primary-action" onClick={() => applyPlacement(selectedSite.id)}>
                 Разместить: {DEVELOPMENT_TYPES[selectedTypeId]?.label}
@@ -395,6 +420,8 @@ export default function App() {
               ))}
             </div>
           </section>
+
+          {user && <ChatWindow currentUser={user} />}
         </aside>
       </main>
     </div>
